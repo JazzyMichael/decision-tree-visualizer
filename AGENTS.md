@@ -23,7 +23,7 @@ The application is split into two distinct layers: the **Base Application Engine
 - **Language:** TypeScript (Strict Mode enabled).
 - **Framework:** Next.js (App Router).
 - **UI Library:** React.
-- **Styling:** Tailwind CSS.
+- **Styling:** Tailwind CSS & Shadcn.
 - **Responsibility:** Project framework, page routing, core layouts, accessibility (a11y), non-graph UI components (modals, settings panels, navigation, headers), and utility handlers.
 
 #### Part B: The Visualizer Subsystem
