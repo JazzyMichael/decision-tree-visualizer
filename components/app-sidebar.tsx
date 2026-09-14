@@ -1,6 +1,8 @@
-import * as React from "react";
+"use client";
 
-import { SearchForm } from "@/components/search-form";
+import * as React from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -13,82 +15,46 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { db } from "./visualizer";
+import { useLiveQuery } from "dexie-react-hooks";
+import { Home } from "lucide-react";
 
-// This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  navMain: [
-    {
-      title: "Your Decision Trees",
-      url: "#",
-      items: [
-        {
-          title: "Guitar",
-          url: "#",
-        },
-        {
-          title: "Pokemon Card Website",
-          url: "#",
-        },
-        {
-          title: "Job Search",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Speed Cubing",
-          url: "#",
-        },
-        {
-          title: "Exercise",
-          url: "#",
-        },
-        {
-          title: "Dating",
-          url: "#",
-        },
-        {
-          title: "ML Research",
-          url: "#",
-        },
-        {
-          title: "Audio Microcontroller",
-          url: "#",
-        },
-        {
-          title: "Business Idea 247",
-          url: "#",
-        },
-      ],
-    },
-  ],
-};
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { treeId } = useParams<{ treeId: string }>();
+
+  const trees = useLiveQuery(() => db.trees.toArray(), []);
+
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="py-8">
-        <SearchForm />
+      <SidebarHeader className="py-8 text-center">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton render={<Link href={"/"} />}>
+              <Home />
+              <span>Decision Tree Visualizer</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((item) => (
-          <SidebarGroup key={item.title}>
-            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {item.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
+        <SidebarGroup>
+          <SidebarGroupLabel>Your Decision Trees</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {trees &&
+                trees.map((tree) => (
+                  <SidebarMenuItem key={tree.id}>
                     <SidebarMenuButton
-                      isActive={item.isActive}
-                      render={<a href={item.url} />}
+                      isActive={tree.id === `/${treeId}`}
+                      render={<Link href={`/${tree.id}`} />}
                     >
-                      {item.title}
+                      {tree.title}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
