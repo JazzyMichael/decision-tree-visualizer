@@ -18,7 +18,7 @@ import { db, ensureMockData } from "./db";
 import { calculateLayout } from "./layout-engine";
 import { TreeNodeComponent } from "./tree-node";
 import { TreeEdgeComponent } from "./tree-edge";
-import PromptCard from "@/components/prompt-card";
+// import PromptCard from "@/components/prompt-card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
@@ -134,9 +134,9 @@ export function TreeCanvas({ treeId }: { treeId: string }) {
             Reset Mock Data
           </Button>
         </Panel>
-        <Panel position="bottom-center" className="mb-6">
+        {/* <Panel position="bottom-center" className="mb-6">
           <PromptCard onSubmit={handlePromptSubmit} />
-        </Panel>
+        </Panel> */}
         <Background />
         <Controls />
       </ReactFlow>
