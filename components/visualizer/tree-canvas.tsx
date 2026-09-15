@@ -123,7 +123,7 @@ export function TreeCanvas({ treeId }: { treeId: string }) {
         maxZoom={1.5}
         defaultEdgeOptions={{ type: "TreeEdge" }}
       >
-        <Panel position="top-right" className="flex items-center gap-2 m-4">
+        {/* <Panel position="top-right" className="flex items-center gap-2 m-4">
           <Button
             variant="outline"
             size="sm"
@@ -133,7 +133,7 @@ export function TreeCanvas({ treeId }: { treeId: string }) {
             <RefreshCw className="w-3.5 h-3.5 mr-1" />
             Reset Mock Data
           </Button>
-        </Panel>
+        </Panel> */}
         {/* <Panel position="bottom-center" className="mb-6">
           <PromptCard onSubmit={handlePromptSubmit} />
         </Panel> */}

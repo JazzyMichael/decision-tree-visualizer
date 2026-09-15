@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -146,34 +147,39 @@ export function TreeNodeComponent({ data, selected }: TreeNodeProps) {
             }
           />
           <DropdownMenuContent align="end" className="nodrag nopan w-36">
-            <DropdownMenuLabel className="text-xs">
-              Update Status
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs">
+                Update Status
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => handleStatusChange("completed")}
-              className="text-xs gap-2 cursor-pointer"
-            >
-              <CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> Completed
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleStatusChange("in-progress")}
-              className="text-xs gap-2 cursor-pointer"
-            >
-              <PlayCircle className="h-3.5 w-3.5 text-blue-500" /> In Progress
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleStatusChange("pending")}
-              className="text-xs gap-2 cursor-pointer"
-            >
-              <Clock className="h-3.5 w-3.5 text-slate-400" /> Pending
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleStatusChange("skipped")}
-              className="text-xs gap-2 cursor-pointer"
-            >
-              <AlertCircle className="h-3.5 w-3.5 text-amber-500" /> Skipped
-            </DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => handleStatusChange("completed")}
+                className="text-xs gap-2 cursor-pointer"
+              >
+                <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />{" "}
+                Completed
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleStatusChange("in-progress")}
+                className="text-xs gap-2 cursor-pointer"
+              >
+                <PlayCircle className="h-3.5 w-3.5 text-blue-500" /> In Progress
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleStatusChange("pending")}
+                className="text-xs gap-2 cursor-pointer"
+              >
+                <Clock className="h-3.5 w-3.5 text-slate-400" /> Pending
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleStatusChange("skipped")}
+                className="text-xs gap-2 cursor-pointer"
+              >
+                <AlertCircle className="h-3.5 w-3.5 text-amber-500" /> Skipped
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
