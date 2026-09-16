@@ -4,11 +4,25 @@ import { useEffect, useState } from "react";
 import { getBrowserAIInfo, type BrowserAIInfo } from "@/lib/ai";
 import { NewTreeForm } from "@/components/new-tree-form";
 
+function detectBrowser(): string {
+  const ua = navigator.userAgent;
+  if (/Edg\//.test(ua)) return "Microsoft Edge";
+  if (/OPR\/|Opera/.test(ua)) return "Opera";
+  if (/SamsungBrowser/.test(ua)) return "Samsung Internet";
+  if (/Firefox\//.test(ua)) return "Mozilla Firefox";
+  if (/Chrome\//.test(ua)) return "Google Chrome";
+  if (/Safari\//.test(ua)) return "Apple Safari";
+  return "Unknown browser";
+}
+
 export default function Home() {
   const [ai, setAI] = useState<BrowserAIInfo | null>(null);
+  const [browser, setBrowser] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+
+    setBrowser(detectBrowser());
 
     getBrowserAIInfo().then((info) => {
       if (!cancelled) {
@@ -30,6 +44,9 @@ export default function Home() {
           {ai ? ai.model : "Checking your browser AI..."}
         </p>
         <p>Availability: {ai?.availability ?? "loading"}</p>
+        <p className="text-sm text-muted-foreground">
+          {browser ?? "Detecting browser…"}
+        </p>
       </section>
 
       <p>
