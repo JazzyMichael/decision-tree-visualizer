@@ -2,21 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@base-ui/react";
-import { Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -52,31 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger className="-ml-1" />
-              {/* Default vertical separator from sidebar-01 block isn't showing :( */}
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-              />
-              <Breadcrumb className="w-full">
-                <BreadcrumbList className="w-full">
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Name of Tree</BreadcrumbPage>
-                  </BreadcrumbItem>
-                  <BreadcrumbItem className="ml-auto">
-                    <BreadcrumbPage>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 />
-                      </Button>
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </header>
-            {children}
-          </SidebarInset>
+          {children}
         </SidebarProvider>
       </body>
     </html>
