@@ -120,21 +120,36 @@ async function isAIAvailable(): Promise<boolean> {
   }
 }
 
-async function createSession(
-  systemPrompt: string,
-): Promise<LanguageModel | null> {
+// Shared session reused across all 4 form AI calls — avoids repeated model loading overhead.
+// Created on first use, destroyed after generateDecisionTree completes.
+let formSession: LanguageModel | null = null;
+
+async function getOrCreateFormSession(): Promise<LanguageModel | null> {
+  if (formSession) return formSession;
   if (!(await isAIAvailable())) {
     console.log("create session - ai unavailable");
     return null;
   }
   try {
-    return await LanguageModel.create({
-      initialPrompts: [{ role: "system", content: systemPrompt }],
+    formSession = await LanguageModel.create({
+      initialPrompts: [
+        {
+          role: "system",
+          content:
+            "You are an expert life coach and goal planning specialist. You help users clarify their goals, understand their starting point, assess constraints, and create structured decision trees for achieving goals. When asked for JSON, respond with only valid JSON and no additional text or markdown.",
+        },
+      ],
       expectedOutputs: [{ type: "text", languages: ["en"] }],
     });
+    return formSession;
   } catch {
     return null;
   }
+}
+
+function destroyFormSession(): void {
+  formSession?.destroy();
+  formSession = null;
 }
 
 function parseJSONFromResponse<T>(raw: string): T {
@@ -176,15 +191,12 @@ async function promptJSON<T>(
 export async function generateGoalSuggestions(
   topic: string,
 ): Promise<GoalSuggestions | null> {
-  const session = await createSession(
-    "You are a helpful life and career coach helping users clarify their goals. Be concise, practical, and specific.",
-  );
+  const session = await getOrCreateFormSession();
   if (!session) return null;
 
-  try {
-    return await promptJSON<GoalSuggestions>(
-      session,
-      `The user wants to work on: "${topic}".
+  return promptJSON<GoalSuggestions>(
+    session,
+    `The user wants to work on: "${topic}".
 
 Return a JSON object with this exact shape:
 {
@@ -194,33 +206,27 @@ Return a JSON object with this exact shape:
 
 "suggestions": 3-4 specific, actionable goals related to "${topic}".
 "questions": 2-3 questions that help the user think more concretely about what success looks like.`,
-      {
-        type: "object",
-        properties: {
-          suggestions: { type: "array", items: { type: "string" } },
-          questions: { type: "array", items: { type: "string" } },
-        },
-        required: ["suggestions", "questions"],
+    {
+      type: "object",
+      properties: {
+        suggestions: { type: "array", items: { type: "string" } },
+        questions: { type: "array", items: { type: "string" } },
       },
-    );
-  } finally {
-    session.destroy();
-  }
+      required: ["suggestions", "questions"],
+    },
+  );
 }
 
 export async function generateStartingPointQuestions(
   topic: string,
   goals: string,
 ): Promise<StartingPointData | null> {
-  const session = await createSession(
-    "You are a helpful coach who helps users understand and articulate their current starting point. Be direct and insightful.",
-  );
+  const session = await getOrCreateFormSession();
   if (!session) return null;
 
-  try {
-    return await promptJSON<StartingPointData>(
-      session,
-      `Topic: "${topic}". Goals: "${goals}".
+  return promptJSON<StartingPointData>(
+    session,
+    `Topic: "${topic}". Goals: "${goals}".
 
 Return a JSON object with this exact shape:
 {
@@ -233,33 +239,27 @@ Return a JSON object with this exact shape:
   2. How aware they are of how others have achieved similar goals
   3. Whether they are starting from zero or already have some foundation
 "suggestions": 3-4 short phrases describing common starting archetypes for "${topic}" (e.g. "Complete beginner, no prior experience").`,
-      {
-        type: "object",
-        properties: {
-          questions: { type: "array", items: { type: "string" } },
-          suggestions: { type: "array", items: { type: "string" } },
-        },
-        required: ["questions", "suggestions"],
+    {
+      type: "object",
+      properties: {
+        questions: { type: "array", items: { type: "string" } },
+        suggestions: { type: "array", items: { type: "string" } },
       },
-    );
-  } finally {
-    session.destroy();
-  }
+      required: ["questions", "suggestions"],
+    },
+  );
 }
 
 export async function generateConstraintSuggestions(
   topic: string,
   goals: string,
 ): Promise<ConstraintData | null> {
-  const session = await createSession(
-    "You are a helpful coach who helps users think realistically about their time commitment and potential obstacles.",
-  );
+  const session = await getOrCreateFormSession();
   if (!session) return null;
 
-  try {
-    return await promptJSON<ConstraintData>(
-      session,
-      `Topic: "${topic}". Goals: "${goals}".
+  return promptJSON<ConstraintData>(
+    session,
+    `Topic: "${topic}". Goals: "${goals}".
 
 Return a JSON object with this exact shape:
 {
@@ -269,26 +269,21 @@ Return a JSON object with this exact shape:
 
 "timeframeSuggestions": 3 realistic time commitment options for someone working on "${topic}".
 "commonConstraints": 4-5 common obstacles or limiting factors specific to "${topic}".`,
-      {
-        type: "object",
-        properties: {
-          timeframeSuggestions: { type: "array", items: { type: "string" } },
-          commonConstraints: { type: "array", items: { type: "string" } },
-        },
-        required: ["timeframeSuggestions", "commonConstraints"],
+    {
+      type: "object",
+      properties: {
+        timeframeSuggestions: { type: "array", items: { type: "string" } },
+        commonConstraints: { type: "array", items: { type: "string" } },
       },
-    );
-  } finally {
-    session.destroy();
-  }
+      required: ["timeframeSuggestions", "commonConstraints"],
+    },
+  );
 }
 
 export async function generateDecisionTree(
   formData: TreeFormData,
 ): Promise<GeneratedTree | null> {
-  const session = await createSession(
-    "You are an expert at creating structured, practical decision trees for goal achievement. Create comprehensive trees with real decision points and meaningful progression steps.",
-  );
+  const session = await getOrCreateFormSession();
   if (!session) return null;
 
   try {
@@ -302,7 +297,7 @@ Starting Point: ${formData.startingPoint}
 Time Commitment: ${formData.timePerWeek}, ${formData.frequency}
 Potential Constraints: ${formData.constraints || "none specified"}
 
-Return a JSON object with this exact shape:
+Return a JSON object with this exact shape and ensure all nodes and edges have unique "id" properties:
 {
   "nodes": [
     {
@@ -382,11 +377,8 @@ Guidelines:
     );
   } catch (e) {
     console.log("failed to generate tree", e);
-    session.destroy();
     return null;
+  } finally {
+    destroyFormSession();
   }
-  //  finally {
-  //   session.destroy();
-  //   return null;
-  // }
 }

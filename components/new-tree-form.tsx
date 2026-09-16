@@ -38,6 +38,7 @@ import {
   Sparkles,
   TreePine,
 } from "lucide-react";
+import { toKebabCase, toTitleCase } from "@/lib/utils";
 
 type Step = 1 | 2 | 3 | 4;
 type FormState = "form" | "generating" | "error";
@@ -238,12 +239,12 @@ export function NewTreeForm() {
         return;
       }
 
-      const treeId = crypto.randomUUID();
+      const treeId = toKebabCase(formData.topic);
       const now = Date.now();
 
       const tree: Tree = {
         id: treeId,
-        title: formData.topic,
+        title: toTitleCase(formData.topic),
         description: formData.goals,
         createdAt: now,
         updatedAt: now,
@@ -415,7 +416,9 @@ export function NewTreeForm() {
                 />
                 <SuggestionChips
                   chips={step2AI.data.suggestions}
-                  onSelect={(s) => setGoals((prev) => appendLine(prev, s))}
+                  onSelect={(s) =>
+                    setGoals((prev) => appendLine(prev, `${s}.`))
+                  }
                 />
               </div>
             ) : null}
@@ -476,7 +479,7 @@ export function NewTreeForm() {
                 <SuggestionChips
                   chips={step3AI.data.suggestions}
                   onSelect={(s) =>
-                    setStartingPoint((prev) => appendLine(prev, s))
+                    setStartingPoint((prev) => appendLine(prev, `${s}.`))
                   }
                 />
               </div>
@@ -559,7 +562,7 @@ export function NewTreeForm() {
                   <SuggestionChips
                     chips={step4AI.data.commonConstraints}
                     onSelect={(c) =>
-                      setConstraints((prev) => appendLine(prev, c))
+                      setConstraints((prev) => appendLine(prev, `${c}.`))
                     }
                   />
                 </div>
